@@ -1,6 +1,7 @@
 //element showing the profile//
 const overview = document.querySelector(".overview");
 const username = "NAS-coder";
+const listing = document.querySelector(".repo-list");
 
 
 const getData = async function () {
@@ -28,5 +29,27 @@ const display = function (data) {
   </div>`
 
   overview.append(user);
+  fetchingRepos();
 
+};
+
+const fetchingRepos = async function () {
+    const reposUrl = await fetch (
+        `https://api.github.com/users/${username}/repos?sort="updated"&per_page=100`
+    );
+    const reposData = await reposUrl.json();
+    console.log(reposData);
+    displayRepos(reposData);
+};
+//fetchingRepos();
+
+const displayRepos = function (repos) {
+    for (let item of repos) {
+        const repoList = document.createElement("li");
+        repoList.classList.add("repos");
+        repoList.innerHTML = `<h3>${item.full_name}</h3>`;
+        listing.append(repoList);
+    };
+   
+fetchingRepos();
 };
