@@ -2,6 +2,8 @@
 const overview = document.querySelector(".overview");
 const username = "NAS-coder";
 const listing = document.querySelector(".repo-list");
+const allRepoInfo = document.querySelector(".repos");
+const specificRepoInfo = document.querySelector(".repo-data");
 
 
 const getData = async function () {
@@ -9,7 +11,7 @@ const getData = async function () {
         `https://api.github.com/users/${username}`
     );
     const data = await res.json();
-    console.log(data);
+    //console.log(data);
     display(data);
 };
 getData();
@@ -35,10 +37,10 @@ const display = function (data) {
 
 const fetchingRepos = async function () {
     const reposUrl = await fetch (
-        `https://api.github.com/users/${username}/repos?sort="updated"&per_page=100`
+        `https://api.github.com/users/${username}/repos?sort=updated&per_page=100`
     );
     const reposData = await reposUrl.json();
-    console.log(reposData);
+    //console.log(reposData);
     displayRepos(reposData);
 };
 //fetchingRepos();
@@ -47,9 +49,53 @@ const displayRepos = function (repos) {
     for (let item of repos) {
         const repoList = document.createElement("li");
         repoList.classList.add("repos");
-        repoList.innerHTML = `<h3>${item.full_name}</h3>`;
+        repoList.innerHTML = `<h3>${item.name}</h3>`;
         listing.append(repoList);
     };
    
-fetchingRepos();
+//fetchingRepos();
 };
+
+listing.addEventListener ("click", function (e) {
+    if (e.target.matches("h3")) {
+        const repoName = e.target.innerText;
+        //console.log(repoName);
+        specificRepo(repoName);
+    };
+    
+});
+
+const specificRepo = async function (repoName) {
+    const fetchRepo = await fetch (
+        `https://api.github.com/repos/${username}/${repoName}`
+    );
+    const repoInfo = await fetchRepo.json();
+    console.log(repoInfo);
+    const fetchLanguages = await fetch (
+        "https://api.github.com/repos/NAS-coder/subscription-calculator/languages"
+    );
+    const languageData = await fetchLanguages.json();
+    console.log(languageData);
+    const languages = [];
+    for (let key in languageData) {
+        languages.push(key);
+        console.log(languages);
+    }
+    displaySpecificRepo(repoInfo, languages);
+};
+
+const displaySpecificRepo = function (repoInfo, languages) {
+    specificRepoInfo.innerHTML = "";
+    let div = document.createElement("div");
+    div.innerHTML = 
+    `<h3>Name: ${repoInfo.name}</h3>
+    <p>Description: ${repoInfo.description}</p>
+    <p>Default Branch: ${repoInfo.default_branch}</p>
+    <p>Languages: ${languages.join(", ")}</p>
+    <a class="visit" href="${
+        "git://github.com/NAS-coder/subscription-calculator.git"}" target="_blank" rel="noreferrer noopener">View Repo on GitHub!</a>`
+
+    specificRepoInfo.append(div);
+    specificRepoInfo.classList.remove("hide");
+    allRepoInfo.classList.add("hide");
+}
