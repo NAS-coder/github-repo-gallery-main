@@ -4,6 +4,8 @@ const username = "NAS-coder";
 const listing = document.querySelector(".repo-list");
 const allRepoInfo = document.querySelector(".repos");
 const specificRepoInfo = document.querySelector(".repo-data");
+const resetButton = document.querySelector(".view-repos");
+const filterInput = document.querySelector(".filter-repos");
 
 
 const getData = async function () {
@@ -18,6 +20,7 @@ getData();
 
 //function to display the userdata on the page//
 const display = function (data) {
+    filterInput.classList.remove("hide");
     let user = document.createElement("user");
     user.classList.add("user-info");
     user.innerHTML = `<figure>
@@ -48,7 +51,7 @@ const fetchingRepos = async function () {
 const displayRepos = function (repos) {
     for (let item of repos) {
         const repoList = document.createElement("li");
-        repoList.classList.add("repos");
+        repoList.classList.add("repo");
         repoList.innerHTML = `<h3>${item.name}</h3>`;
         listing.append(repoList);
     };
@@ -72,7 +75,7 @@ const specificRepo = async function (repoName) {
     const repoInfo = await fetchRepo.json();
     console.log(repoInfo);
     const fetchLanguages = await fetch (
-        "https://api.github.com/repos/NAS-coder/subscription-calculator/languages"
+        repoInfo.languages_url
     );
     const languageData = await fetchLanguages.json();
     console.log(languageData);
@@ -98,4 +101,26 @@ const displaySpecificRepo = function (repoInfo, languages) {
     specificRepoInfo.append(div);
     specificRepoInfo.classList.remove("hide");
     allRepoInfo.classList.add("hide");
+    resetButton.classList.remove("hide");
 }
+
+resetButton.addEventListener ("click", function () {
+    allRepoInfo.classList.remove("hide");
+    specificRepoInfo.classList.add("hide");
+    resetButton.classList.add("hide");
+});
+
+filterInput.addEventListener ("input", function (e) {
+    const captureText = e.target.value;
+    console.log(captureText);
+    const repos = document.querySelectorAll(".repo");
+    const searchLower = captureText.toLowerCase();
+    for (const item of repos) {
+        const repoText = item.innerText.toLowerCase();
+        if (repoText.includes(searchLower)) {
+            item.classList.remove("hide");
+        } else {
+            item.classList.add("hide");
+        };
+    };
+});
